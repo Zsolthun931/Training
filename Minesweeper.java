@@ -8,7 +8,7 @@ class Cell {
 	private boolean isFlagged;
 	private int adjacentMines;
 	
-	//Constructor, setting all values to false and zero
+	//Constructor
 	public Cell() {
 		this.hasMine= false;
 		this.isRevealed= false;
@@ -16,7 +16,7 @@ class Cell {
 		this.adjacentMines= 0;
 	}
 	
-	//Getters to get the values from all booleans and integers
+	//Getters
 	 public boolean hasMine() {
 	        return hasMine;
 	    }
@@ -33,7 +33,7 @@ class Cell {
 	        return adjacentMines;
 	    }
 	    
-	    //Setters to modify the cell's data
+	    //Setters
 	    public void setHasMine(boolean hasMine) {
 	        this.hasMine = hasMine;
 	    }
@@ -69,8 +69,8 @@ public class Minesweeper {
 		System.out.println("how many columns do you want?");
 		cols=sc.nextInt();
 		
-		//wincondition setup
-				int maxreveal=(rows*cols)-mines; 
+		//maximum for revealed cells
+		int maxreveal=(rows*cols)-mines; 
 		
 		System.out.println("How many mines do you want?");
 		mines=sc.nextInt();
@@ -93,7 +93,7 @@ public class Minesweeper {
 		}
 		
 		
-		while (placedmines<mines) //mines generation
+		while (placedmines<mines) //Place mines
 		{
 			randomminesx= ( (int)(Math.random()* rows));
 			randomminesy= ( (int)(Math.random()* cols));
@@ -105,28 +105,13 @@ public class Minesweeper {
 		}
 		
 		
-		
-		//test reveal and test flagged
-		
-		/*board[1][1].setRevealed(true);
-		board[3][3].setFlagged(true);*/
-		
-		//Calculate all numbers
+		//Calculate all adjacentmine values 
 		for (int row = 0; row < rows; row++) {
 		    for (int col = 0; col < cols; col++) {
 		        calculateAdjacentMines(board, row, col);
 		    }
 		}
 		
-		//Full reveal
-		/*for (int row = 0; row < rows; row++) {
-		    for (int col = 0; col < cols; col++) {
-		        board[row][col].setRevealed(true);
-		    }
-		}*/
-		
-		//Display board
-		//DisplayBoard(board,rows,cols);
 		
 		
 		int choice=0;
@@ -190,12 +175,11 @@ public class Minesweeper {
 		FlagCell(board,ycord,xcord);
 		break;
 		}
-		//Self check counting flags correctly
-		//System.out.println("Correct flags:"+CountCorrectFlags(board,rows,cols));
 		
 		//Win Game over
 		if (CountRevealedCells(board, rows, cols)==maxreveal && CountCorrectFlags(board, rows, cols)==mines)
 		{
+			BasicSpace();
 			System.out.println("Congratulations! \n You have successfully revealed all safe cells and flagged all mines!");
 			run=0;
 		}
@@ -203,6 +187,7 @@ public class Minesweeper {
 		//Lose Game over
 		if (CheckMineRevealed(board, rows, cols)==true)
 		{
+			BasicSpace();
 			System.out.println("You have Revealed a mine! \n Game over!");
 			run=0;
 		}
@@ -262,7 +247,7 @@ public class Minesweeper {
 	    { 
 	        for (int y : DIRECTIONS) //cols
 	        { 
-	            // Skip the current cell itself
+	            // Skip the current cell
 	            if (x == 0 && y == 0) 
 	            {
 	                continue;
@@ -271,11 +256,11 @@ public class Minesweeper {
 	            int neighborRow = row + x;
 	            int neighborCol = col + y;
 
-	            // Check if the neighboring cell is within bounds
+	            //Bounds check
 	            if (isInBounds(board, neighborRow, neighborCol)) 
 	            {
 	            	
-	                // If the neighbor is not revealed and not a mine, reveal it
+	                //neighbor reveal
 	                if (!board[neighborRow][neighborCol].isRevealed() && !board[neighborRow][neighborCol].hasMine()) 
 	                {
 	                	
@@ -286,7 +271,7 @@ public class Minesweeper {
 	    }
 	}
 
-	// Helper method to check if the cell is within bounds
+	//Bounds check method
 	private static boolean isInBounds(Cell[][] board, int row, int col) {
 	    return row >= 0 && row < board.length && col >= 0 && col < board[0].length;
 	}
@@ -313,7 +298,7 @@ public class Minesweeper {
 		return minerevealed;
 	}
 	
-	//Change cell state to flagged
+	//Change cell state(flag)
 	public static void FlagCell(Cell[][] board,int row,int col) {
 		
 		if (board[row-1][col-1].isFlagged()==false)
