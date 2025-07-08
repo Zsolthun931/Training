@@ -77,7 +77,7 @@ public class Minesweeper {
 		int placedmines=0;
 		
 		
-		System.out.println("Welcome to Minesweeper! \n how many rows do you want?!");
+		System.out.println("Welcome to Minesweeper! \n how many rows do you want?");
 		rows=sc.nextInt();
 		System.out.println("how many columns do you want?");
 		cols=sc.nextInt();
@@ -86,11 +86,11 @@ public class Minesweeper {
 		
 		//maximum for revealed cells
 		int maxreveal=(rows*cols)-mines; 
+		int maxcells=rows*cols;
 		
-		
-		if (mines<0 || mines>maxreveal-1)
+		if (mines<0 || mines>maxcells-1)
 		{
-			while(mines<0 || mines>cols)
+			while(mines<0 || mines>maxcells-1)
 			{
 				System.out.println("too high or too low number, please reenter");
 				mines=sc.nextInt();
@@ -205,6 +205,14 @@ public class Minesweeper {
 				//Lose Game over
 				if (CheckMineRevealed(board, rows, cols)==true)
 				{
+					//Full reveal
+					for (int row = 0; row < rows; row++) {
+					    for (int col = 0; col < cols; col++) {
+					        board[row][col].setRevealed(true);
+					    }
+					}
+					BasicSpace();
+					DisplayBoard(board,rows,cols);
 					BasicSpace();
 					System.out.println("You have Revealed a mine! \n Game over!");
 					run=0;
