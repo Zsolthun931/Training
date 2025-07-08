@@ -50,6 +50,19 @@ class Cell {
 	        this.adjacentMines = adjacentMines;
 	    }
 }
+
+class ColorText {
+    public static final String ANSI_RESET = "\u001B[0m"; // Reset color
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_MAGENTA = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
+}
+
 public class Minesweeper {
 	
 
@@ -68,12 +81,13 @@ public class Minesweeper {
 		rows=sc.nextInt();
 		System.out.println("how many columns do you want?");
 		cols=sc.nextInt();
+		System.out.println("How many mines do you want?");
+		mines=sc.nextInt();
 		
 		//maximum for revealed cells
 		int maxreveal=(rows*cols)-mines; 
 		
-		System.out.println("How many mines do you want?");
-		mines=sc.nextInt();
+		
 		if (mines<0 || mines>maxreveal-1)
 		{
 			while(mines<0 || mines>cols)
@@ -176,24 +190,25 @@ public class Minesweeper {
 		break;
 		}
 		
-		//Win Game over
-		if (CountRevealedCells(board, rows, cols)==maxreveal && CountCorrectFlags(board, rows, cols)==mines)
-		{
-			BasicSpace();
-			System.out.println("Congratulations! \n You have successfully revealed all safe cells and flagged all mines!");
-			run=0;
-		}
 		
-		//Lose Game over
-		if (CheckMineRevealed(board, rows, cols)==true)
-		{
-			BasicSpace();
-			System.out.println("You have Revealed a mine! \n Game over!");
-			run=0;
-		}
 		BasicSpace();
 		DisplayBoard(board,rows,cols);
 		
+		//Win Game over
+				if (CountRevealedCells(board, rows, cols)==maxreveal && CountCorrectFlags(board, rows, cols)==mines)
+				{
+					BasicSpace();
+					System.out.println("Congratulations! \n You have successfully revealed all safe cells and flagged all mines!");
+					run=0;
+				}
+				
+				//Lose Game over
+				if (CheckMineRevealed(board, rows, cols)==true)
+				{
+					BasicSpace();
+					System.out.println("You have Revealed a mine! \n Game over!");
+					run=0;
+				}
 		
 		
 		
@@ -347,35 +362,39 @@ public class Minesweeper {
 				//Hidden
 				if (board[x][y].isRevealed()==false && board[x][y].isFlagged()==false) 
 				{
-					System.out.print("H ");
+					System.out.print(ColorText.ANSI_CYAN+"|H|"+ColorText.ANSI_RESET);
 				}
 				//Safe and there is no mine around it
 				else if (board[x][y].isRevealed()==true && board[x][y].hasMine()==false && board[x][y].getAdjacentMines()==0) 
 				{
-					System.out.print("S ");
+					System.out.print(ColorText.ANSI_GREEN+"|S|"+ColorText.ANSI_RESET);
 				}
 				//Flag mark
 				if (board[x][y].isRevealed()==false && board[x][y].isFlagged()==true) 
 				{
-					System.out.print("F ");
+					System.out.print(ColorText.ANSI_YELLOW+"|F|"+ColorText.ANSI_RESET);
 				} 
 				//number of adjacent mines
 				else if (board[x][y].isRevealed()==true && board[x][y].getAdjacentMines()>0 && board[x][y].hasMine()==false)
 				{
-					System.out.print(board[x][y].getAdjacentMines()+" ");
+					System.out.print("|"+board[x][y].getAdjacentMines()+"|");
 				}
 				
 				
 				//Display mines
 				else if (board[x][y].isRevealed()==true && board[x][y].hasMine())
 				{
-					System.out.print("* ");
+					System.out.print(ColorText.ANSI_RED + "|*|"+ColorText.ANSI_RESET);
 				}
 				
 			}
 			
 			System.out.println();
-			
+			for (int l=0;l<board.length;l++) 
+			{
+				System.out.print("---");
+			}
+			System.out.println();
 		} 
 			
 			
