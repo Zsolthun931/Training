@@ -411,35 +411,6 @@ public class Minesweeper {
 	    board[row][col].setAdjacentMines(adjacentMines);
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+		
 	
 }
