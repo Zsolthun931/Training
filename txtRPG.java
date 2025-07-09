@@ -42,6 +42,7 @@ class Player {
     private int baseArmor;
     private int basedmg;
     private int baseHealth;
+    private int maxHealth;
     private int currentHealth;
     private int currentArmor;
     private int currentdmg;;
@@ -57,6 +58,7 @@ class Player {
         this.currentHealth = baseHealth; // Initialize currentHealth to baseHealth
         this.currentArmor = baseArmor;
         this.currentdmg = basedmg;
+        this.maxHealth = baseHealth;
     }
 
     // Getters
@@ -155,8 +157,8 @@ class Player {
     // Method to heal
     public void heal(int amount) {
         currentHealth += amount;
-        if (currentHealth > baseHealth) {
-            currentHealth = baseHealth; // Prevent healing above max health
+        if (currentHealth > maxHealth) {
+            currentHealth = maxHealth; // Prevent healing above max health
         }
         System.out.println(name + " healed for " + amount + " health. Current health: " + currentHealth);
     }
@@ -168,6 +170,37 @@ class Player {
     //Attack enemy
     public void attack(Enemy enemy) {
     	enemy.takeDamage(currentdmg);
+    }
+    
+    public void equipItem(Item item) {
+    	if (!item.isEquipped()) {
+	    	if (item.getType()==ItemType.WEAPON) 
+	    	{
+	    	currentdmg += Weapon.getDamage();	
+	    	}
+	    	else if (item.getType()==ItemType.ARMOR) 
+	    	{
+	    	currentArmor += Armor.getBonusArmor();	
+	    	maxHealth+= Armor.getBonusHealth();
+	    	}
+	    	
+    	}
+    	
+    }
+    public void unequipItem(Item item) {
+    	if (!item.isEquipped()) {
+	    	if (item.getType()==ItemType.WEAPON) 
+	    	{
+	    	currentdmg -= Weapon.getDamage();	
+	    	}
+	    	else if (item.getType()==ItemType.ARMOR) 
+	    	{
+	    	currentArmor -= Armor.getBonusArmor();	
+	    	maxHealth -= Armor.getBonusHealth();
+	    	}
+	    	
+    	}
+    	
     }
 }
 
@@ -375,9 +408,10 @@ class Item {
 	    }
 	 
 }
+
 //Weapon class, extending Item
 class Weapon extends Item {
- private int damage;
+ private static int damage;
  private String weaponType; // e.g., "Helmet", "Shield"
 
  // Constructor
@@ -388,7 +422,7 @@ class Weapon extends Item {
  }
 
  // Getters
- public int getDamage() {
+ public static int getDamage() {
      return damage;
  }
 
@@ -413,22 +447,27 @@ class Weapon extends Item {
 
 //Armor class, extending Item
 class Armor extends Item {
-private int bonusarmor;
+private static int bonusarmor;
+private static int bonushealth;
 private String armorType; // e.g., "Sword", "Bow"
 
 // Constructor
-public Armor(String name, ItemRarity rarity, int bonusarmor, String armorType) {
+public Armor(String name, ItemRarity rarity, int bonusarmor,int bonushealth, String armorType) {
    super(name, ItemType.WEAPON, rarity, false); // Weapons are generally not stackable
    this.bonusarmor = bonusarmor;
+   this.bonushealth = bonushealth;
    this.armorType = armorType;
 }
 
 // Getters
-public int getBonusArmor() {
+public static int getBonusArmor() {
    return bonusarmor;
 }
+public static int getBonusHealth() {
+	   return bonushealth;
+	}
 
-public String getWeaponType() {
+public String getArmorType() {
    return armorType;
 }
 
