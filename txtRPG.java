@@ -165,6 +165,7 @@ class Player {
     public boolean isAlive() {
         return currentHealth > 0;
     }
+    //Attack enemy
     public void attack(Enemy enemy) {
     	enemy.takeDamage(currentdmg);
     }
@@ -173,6 +174,7 @@ class Player {
 //Enemy
 
 enum EnemyType {
+	//Enemy format: Name,defense,attackdamage,health,level
     Goblin("Goblin",2, 4, 20,2),
     Orc("Orc",6, 7, 50,5),
     Skeleton("Skeleton",3, 5, 35,3),
@@ -298,6 +300,189 @@ class Enemy {
 	}
 	
 }
+
+//Items
+
+enum ItemType {
+    WEAPON,
+    ARMOR,
+    CONSUMABLE,
+    MISCELLANEOUS
+}
+enum ItemRarity {
+    COMMON,
+    UNCOMMON,
+    RARE,
+    EPIC,
+    LEGENDARY
+}
+   
+class Item {
+	private String name;
+	private ItemType itemtype;
+	private ItemRarity itemrarity;
+	private boolean stackable;
+	private boolean equipped;
+	
+	
+	public Item(String name,ItemType itemtype,ItemRarity itemrarity,boolean stackable) {
+		this.name=name;
+		this.itemtype=itemtype;
+		this.itemrarity=itemrarity;
+		this.stackable=stackable;
+		this.equipped=false;
+	}
+	
+	
+	
+	//Getters
+	public String getName() {
+		return name;
+	}
+	public ItemType getType() {
+		return itemtype;
+	}
+	public ItemRarity getRarity() {
+		return itemrarity;
+	}
+	public boolean isStackable() {
+		return stackable;
+	}
+	public boolean isEquipped() {
+		return equipped;
+	}
+	
+	//setters
+	public void setName(String name) {
+		this.name=name;
+	}
+	public void equip() {
+		this.equipped=true;
+	}
+	public void unequip() {
+		this.equipped=false;
+	}
+	
+	 @Override
+	    public String toString() {
+	        return "Item{" +
+	                "name='" + name + '\'' +
+	                ", type=" + itemtype +
+	                ", rarity=" + itemrarity +
+	                ", stackable=" + stackable +
+	                ", equipped=" + equipped +
+	                '}';
+	    }
+	 
+}
+//Weapon class, extending Item
+class Weapon extends Item {
+ private int damage;
+ private String weaponType; // e.g., "Helmet", "Shield"
+
+ // Constructor
+ public Weapon(String name, ItemRarity rarity, int damage, String weaponType) {
+     super(name, ItemType.WEAPON, rarity, false); // Armor are generally not stackable
+     this.damage = damage;
+     this.weaponType = weaponType;
+ }
+
+ // Getters
+ public int getDamage() {
+     return damage;
+ }
+
+ public String getWeaponType() {
+     return weaponType;
+ }
+
+ 
+
+ @Override
+ public String toString() {
+     return "Weapon{" +
+             "name='" + getName() + '\'' +
+             ", type=" + getType() +
+             ", rarity=" + getRarity() +
+             ", damage=" + damage +
+             ", weaponType='" + weaponType + '\'' +
+             ", equipped=" + isEquipped() +
+             '}';
+ }
+}
+
+//Armor class, extending Item
+class Armor extends Item {
+private int bonusarmor;
+private String armorType; // e.g., "Sword", "Bow"
+
+// Constructor
+public Armor(String name, ItemRarity rarity, int bonusarmor, String armorType) {
+   super(name, ItemType.WEAPON, rarity, false); // Weapons are generally not stackable
+   this.bonusarmor = bonusarmor;
+   this.armorType = armorType;
+}
+
+// Getters
+public int getBonusArmor() {
+   return bonusarmor;
+}
+
+public String getWeaponType() {
+   return armorType;
+}
+
+
+
+@Override
+public String toString() {
+   return "Armor{" +
+           "name='" + getName() + '\'' +
+           ", type=" + getType() +
+           ", rarity=" + getRarity() +
+           ", bonusarmor=" + bonusarmor +
+           ", armorType='" + armorType + '\'' +
+           ", equipped=" + isEquipped() +
+           '}';
+}
+}
+//Armor class, extending Item
+class Consumable extends Item {
+private int healamount;
+private String consumableType; // e.g., "Potion", "Food"
+
+//Constructor
+public Consumable(String name, ItemRarity rarity, int healamount, String consumableType) {
+ super(name, ItemType.WEAPON, rarity, true); // Consumable are generally stackable
+ this.healamount = healamount;
+ this.consumableType = consumableType;
+}
+
+//Getters
+public int getHealAmount() {
+ return healamount;
+}
+
+public String getConsumableType() {
+ return consumableType;
+}
+
+
+
+@Override
+public String toString() {
+ return "Consumable{" +
+         "name='" + getName() + '\'' +
+         ", type=" + getType() +
+         ", rarity=" + getRarity() +
+         ", healamount=" + healamount +
+         ", consumableType='" + consumableType + '\'' +
+         ", equipped=" + isEquipped() +
+         '}';
+}
+}
+
+
 
 
 
