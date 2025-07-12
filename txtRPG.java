@@ -6,9 +6,9 @@ import java.util.*;
 //Player
 
 enum PlayerClass {
-    WARRIOR(10, 8, 100),
-    MAGE(2, 12, 60),
-    ROGUE(5, 10, 80),
+    Warrior(10, 8, 100),
+    Mage(2, 12, 60),
+    Rogue(5, 10, 80),
     DEFAULT(5, 5, 50); // Default class if none is specified
 
     private final int baseArmor;
@@ -45,7 +45,9 @@ class Player {
     private int maxHealth;
     private int currentHealth;
     private int currentArmor;
-    private int currentdmg;;
+    private int currentdmg;
+    private boolean isweaponequipped;
+    private boolean isarmorequipped;
 
     public Player(String name, PlayerClass playerClass) {
         this.name = name;
@@ -55,10 +57,12 @@ class Player {
         this.baseArmor = playerClass.getBaseArmor();
         this.basedmg = playerClass.getBasedmg();
         this.baseHealth = playerClass.getBaseHealth();
-        this.currentHealth = baseHealth; // Initialize currentHealth to baseHealth
+        this.currentHealth = baseHealth; // Initialize all current stats to base
         this.currentArmor = baseArmor;
         this.currentdmg = basedmg;
         this.maxHealth = baseHealth;
+        this.isarmorequipped = false;
+        this.isweaponequipped = false;
     }
 
     // Getters
@@ -102,6 +106,13 @@ class Player {
         return currentdmg;
     }
     
+    public boolean checkAnyWeaponEquipped() {
+        return isweaponequipped;
+    }
+    public boolean checkAnyArmorEquipped() {
+        return isarmorequipped;
+    }
+    
     // Setters
     public void setXp(int xp) {
         this.xp = xp;
@@ -132,7 +143,30 @@ class Player {
     public void setCurrentdmg(int currentdmg) {
         this.currentdmg = currentdmg;
     }
-
+    
+    //Change state of the Weapon slot
+    public void setAnyEquippedWeapon() {
+        if (this.checkAnyWeaponEquipped()==false)
+        {
+        	this.isweaponequipped=true;
+        }
+        else if (this.checkAnyWeaponEquipped()==true) 
+        {
+        	this.isweaponequipped=false;
+        }
+    }
+    //Change state of the Armor Slot
+    public void setAnyEquippedArmor() {
+        if (this.checkAnyArmorEquipped()==false)
+        {
+        	this.isarmorequipped=true;
+        }
+        else if (this.checkAnyArmorEquipped()==true) 
+        {
+        	this.isarmorequipped=false;
+        }
+    }
+    
     // Method to level up
     public void levelUp() {
         this.level++;
@@ -172,37 +206,138 @@ class Player {
     	enemy.takeDamage(currentdmg);
     }
     
-    public void equipItem(Item item) {
-    	if (!item.isEquipped()) {
-	    	if (item.getType()==ItemType.WEAPON) 
+    public void equipItemWeapon(Weapon weapon) {
+    	if (!weapon.isEquipped() && this.checkAnyWeaponEquipped()==false) {
+	    	if (weapon.getType()==ItemType.WEAPON) 
 	    	{
-	    	currentdmg += Weapon.getDamage();	
+	    	currentdmg += weapon.getDamage();	
+	    	this.setAnyEquippedWeapon();
+	    	weapon.equip();
+	    	System.out.println();
+	    	System.out.println("Weapon equipped!");
 	    	}
-	    	else if (item.getType()==ItemType.ARMOR) 
-	    	{
-	    	currentArmor += Armor.getBonusArmor();	
-	    	maxHealth+= Armor.getBonusHealth();
-	    	}
-	    	
+    	}
+    	else if (this.checkAnyWeaponEquipped()==true) {
+    		System.out.println("Unequip your weapon first!");
     	}
     	
     }
-    public void unequipItem(Item item) {
-    	if (!item.isEquipped()) {
-	    	if (item.getType()==ItemType.WEAPON) 
+    public void equipItemArmor(Armor armor) {
+    	if (!armor.isEquipped() && this.checkAnyArmorEquipped()==false) {
+    		if (armor.getType()==ItemType.ARMOR) 
+    		{
+    		currentArmor += armor.getBonusArmor();	
+    		maxHealth+= armor.getBonusHealth();
+    		this.setAnyEquippedArmor();
+    		System.out.println();
+    		System.out.println("Armor equipped!");
+    		armor.equip();
+    		}
+    	}
+    	else if (this.checkAnyArmorEquipped()==true) {
+    		System.out.println("Unequip your armor first!");
+    	}
+    }
+    
+    public void unEquipItemWeapon(Weapon weapon) {
+    	if (weapon.isEquipped()==true && this.checkAnyWeaponEquipped()==true) {
+	    	if (weapon.getType()==ItemType.WEAPON) 
 	    	{
-	    	currentdmg -= Weapon.getDamage();	
+	    	currentdmg -= weapon.getDamage();	
+	    	this.setAnyEquippedWeapon();
+	    	weapon.unequip();
+	    	System.out.println();
+	    	System.out.println("Weapon unequipped!");
 	    	}
-	    	else if (item.getType()==ItemType.ARMOR) 
+	    	else if (this.checkAnyArmorEquipped()==true && weapon.isEquipped()==false)
 	    	{
-	    	currentArmor -= Armor.getBonusArmor();	
-	    	maxHealth -= Armor.getBonusHealth();
+	    		System.out.println("This is not the currently equipped weapon!");
 	    	}
-	    	
+	    	else if (this.checkAnyArmorEquipped()==false)
+	    	{
+	    		System.out.println("you do not have anything equipped in your weapon slot!");
+	    	}
     	}
     	
+    }
+    
+    public void unEquipItemArmor(Armor armor) {
+    	if (armor.isEquipped()==true && this.checkAnyArmorEquipped()==true) {
+    		if (armor.getType()==ItemType.ARMOR) 
+    		{
+    		currentArmor -= armor.getBonusArmor();	
+    		maxHealth -= armor.getBonusHealth();
+    		if (currentHealth>maxHealth) {
+    			currentHealth=maxHealth;
+    		}
+    		this.setAnyEquippedArmor();
+    		armor.equip();
+    		System.out.println();
+    		System.out.println("Armor unequipped!");
+    		}
+    	}
+    	else if (this.checkAnyArmorEquipped()==true && armor.isEquipped()==false)
+    	{
+    		System.out.println("This is not the currently equipped armor!");
+    	}
+    	else if (this.checkAnyArmorEquipped()==false)
+    	{
+    		System.out.println("you do not have anything equipped in your armor slot!");
+    	}
+    	
+    }
+    
+    //Display the player's current stats
+    public void displayCurrentStats() {
+    	System.out.println("Name: "+name);
+    	System.out.println("Current HP: "+currentHealth);
+    	System.out.println("Max HP: "+maxHealth);
+    	System.out.println("Current Armor: "+currentArmor);
+    	System.out.println("Current dmg: "+currentdmg);
+    	System.out.println("level: "+level);
+    	System.out.println("XP: "+xp);
+    	System.out.println("Class: "+playerClass);
+    }
+    
+    
+    //Player debug stat checks
+    public void debugShowBaseStats() {
+    	System.out.println("Base HP: "+baseHealth);
+    	System.out.println("BaseArmor: "+baseArmor);
+    	System.out.println("Basedmg: "+basedmg);
+    	System.out.println("level: "+level);
+    	System.out.println("XP: "+xp);
+    	System.out.println("Class: "+playerClass);
+    }
+    public void debugShowCurrentStats() {
+    	System.out.println("Current HP: "+currentHealth);
+    	System.out.println("Max HP: "+maxHealth);
+    	System.out.println("Current Armor: "+currentArmor);
+    	System.out.println("Current dmg: "+currentdmg);
+    	System.out.println("level: "+level);
+    	System.out.println("XP: "+xp);
+    	System.out.println("Class: "+playerClass);
+    }
+    
+    public void debugWeaponCheck() {
+    	System.out.println(this.isweaponequipped);
+    }
+    public void debugArmorCheck() {
+    	System.out.println(this.isarmorequipped);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 //Enemy
 
@@ -247,92 +382,113 @@ enum EnemyType {
     }
 }
 
-class Enemy {
-	private String name;
-	private int level;
-	private int baseHealth;
-	private int currentHealth;
-	private int attackDamage;
-	private int defense;
-	private EnemyType enemyType;
-	//private List<Item> lootPool; //lootpool
-	boolean isAlive;
+	class Enemy {
+		private String name;
+		private int level;
+		private int baseHealth;
+		private int currentHealth;
+		private int attackDamage;
+		private int defense;
+		private EnemyType enemyType;
+		//private List<Item> lootPool; //lootpool
+		boolean isAlive;
+		
+		public Enemy(EnemyType enemyType) {
+			this.name = enemyType.getEnemyName();
+			this.level = enemyType.getEnemyLevel();
+			this.baseHealth = enemyType.getBaseHealth();
+			this.defense = enemyType.getDefense();
+			this.attackDamage = enemyType.getAttackDamage();
+			this.currentHealth= baseHealth;
+			this.isAlive=true;
+			//this.lootPool = enemyType.getLootPool();  //lootpool
+		}
+		//Getters
+		public String getEnemyName() {
+			return name;
+		}
+		public int getEnemyLevel() {
+			return level;
+		}
+		public int getBaseHealth() {
+			return baseHealth;
+		}
+		public int getDefense() {
+			return defense;
+		}
+		public int getAttackDamage() {
+			return attackDamage;
+		}
+		public int getCurrentHealth() {
+			return currentHealth;
+		}
+		public EnemyType getEnemyType() {
+			return enemyType;
+		}
+		//TODO: lootpool getter
+		
+		//Setters
+		public void setEnemyName(String name) {
+			this.name= name;
+		}
+		public void setEnemyLevel(int level) {
+			this.level= level;
+		}
+		public void setBaseHealth(int baseHealth) {
+			this.baseHealth=baseHealth ;
+		}
+		public void setDefense(int defense) {
+			this.defense= defense;
+		}
+		public void setAttackDamage(int attackDamage) {
+			this.attackDamage= attackDamage;
+		}
+		public void setCurrentHealth(int currentHealth) {
+			this.currentHealth= currentHealth;
+		}
+		public void setEnemyType(EnemyType enemyType) {
+			this.enemyType = enemyType;
+		}
+		//TODO: lootpool setter
+		
+		
+		public void takeDamage(int damage) {
+	        int actualDamage = Math.max(0, damage - defense); // Apply armor
+	        currentHealth -= actualDamage;
+	        if (currentHealth <= 0) {
+	            currentHealth = 0; // Prevent negative health
+	            this.isAlive=false;
+	        }
+	        System.out.println(name + " took " + actualDamage + " damage. Current health: " + currentHealth);
+	    }
+		
+		public void heal(int amount) {
+	        currentHealth += amount;
+	        if (currentHealth > baseHealth) {
+	            currentHealth = baseHealth; // Prevent healing above max health
+	        }
+	        System.out.println(name + " healed for " + amount + " health. Current health: " + currentHealth);
+	    }
+		//Enemy attack the current player
+		public void attack(Player player) {
+			player.takeDamage(attackDamage);
+		}
+		
+		
+		
+		
+		
+	}
 	
-	public Enemy(EnemyType enemyType) {
-		this.name = enemyType.getEnemyName();
-		this.level = enemyType.getEnemyLevel();
-		this.baseHealth = enemyType.getBaseHealth();
-		this.defense = enemyType.getDefense();
-		this.attackDamage = enemyType.getAttackDamage();
-		this.currentHealth= baseHealth;
-		this.isAlive=true;
-		//this.lootPool = enemyType.getLootPool();  //lootpool
-	}
-	//Getters
-	public String getEnemyName() {
-		return name;
-	}
-	public int getEnemyLevel() {
-		return level;
-	}
-	public int getBaseHealth() {
-		return baseHealth;
-	}
-	public int getDefense() {
-		return defense;
-	}
-	public int getAttackDamage() {
-		return attackDamage;
-	}
-	public int getCurrentHealth() {
-		return currentHealth;
-	}
-	//TODO: lootpool getter
-	
-	//Setters
-	public void setEnemyName(String name) {
-		this.name= name;
-	}
-	public void setEnemyLevel(int level) {
-		this.level= level;
-	}
-	public void setBaseHealth(int baseHealth) {
-		this.baseHealth=baseHealth ;
-	}
-	public void setDefense(int defense) {
-		this.defense= defense;
-	}
-	public void setAttackDamage(int attackDamage) {
-		this.attackDamage= attackDamage;
-	}
-	public void setCurrentHealth(int currentHealth) {
-		this.currentHealth= currentHealth;
-	}
-	//TODO: lootpool setter
 	
 	
-	public void takeDamage(int damage) {
-        int actualDamage = Math.max(0, damage - defense); // Apply armor
-        currentHealth -= actualDamage;
-        if (currentHealth <= 0) {
-            currentHealth = 0; // Prevent negative health
-            this.isAlive=false;
-        }
-        System.out.println(name + " took " + actualDamage + " damage. Current health: " + currentHealth);
-    }
 	
-	public void heal(int amount) {
-        currentHealth += amount;
-        if (currentHealth > baseHealth) {
-            currentHealth = baseHealth; // Prevent healing above max health
-        }
-        System.out.println(name + " healed for " + amount + " health. Current health: " + currentHealth);
-    }
-	public void attack(Player player) {
-		player.takeDamage(attackDamage);
-	}
 	
-}
+	
+	
+	
+	
+	
 
 //Items
 
@@ -411,7 +567,7 @@ class Item {
 
 //Weapon class, extending Item
 class Weapon extends Item {
- private static int damage;
+ private int damage;
  private String weaponType; // e.g., "Helmet", "Shield"
 
  // Constructor
@@ -422,7 +578,7 @@ class Weapon extends Item {
  }
 
  // Getters
- public static int getDamage() {
+ public int getDamage() {
      return damage;
  }
 
@@ -445,30 +601,37 @@ class Weapon extends Item {
  }
 }
 
+
+
+
+
+
+
+
 //Armor class, extending Item
 class Armor extends Item {
-private static int bonusarmor;
-private static int bonushealth;
-private String armorType; // e.g., "Sword", "Bow"
+private int bonusarmor;
+private int bonushealth;
+private String armorType; // e.g., "Armor", "Helmet"
 
 // Constructor
-public Armor(String name, ItemRarity rarity, int bonusarmor,int bonushealth, String armorType) {
-   super(name, ItemType.WEAPON, rarity, false); // Weapons are generally not stackable
+public Armor(String name, ItemRarity rarity, int bonusarmor, int bonushealth, String armorType) {
+   super(name, ItemType.ARMOR, rarity, false); // Armor are generally not stackable
    this.bonusarmor = bonusarmor;
    this.bonushealth = bonushealth;
    this.armorType = armorType;
 }
 
 // Getters
-public static int getBonusArmor() {
-   return bonusarmor;
+public int getBonusArmor() {
+   return this.bonusarmor;
 }
-public static int getBonusHealth() {
-	   return bonushealth;
+public int getBonusHealth() {
+		return this.bonushealth;
 	}
 
 public String getArmorType() {
-   return armorType;
+   return this.armorType;
 }
 
 
@@ -480,30 +643,43 @@ public String toString() {
            ", type=" + getType() +
            ", rarity=" + getRarity() +
            ", bonusarmor=" + bonusarmor +
+           ", bonushealth=" + bonushealth +
            ", armorType='" + armorType + '\'' +
            ", equipped=" + isEquipped() +
            '}';
 }
 }
-//Armor class, extending Item
+
+
+
+
+
+
+
+
+
+
+
+
+//Consumable class, extending Item
 class Consumable extends Item {
 private int healamount;
 private String consumableType; // e.g., "Potion", "Food"
 
 //Constructor
 public Consumable(String name, ItemRarity rarity, int healamount, String consumableType) {
- super(name, ItemType.WEAPON, rarity, true); // Consumable are generally stackable
+ super(name, ItemType.CONSUMABLE, rarity, true); // Consumable are generally stackable
  this.healamount = healamount;
  this.consumableType = consumableType;
 }
 
 //Getters
 public int getHealAmount() {
- return healamount;
+ return this.healamount;
 }
 
 public String getConsumableType() {
- return consumableType;
+ return this.consumableType;
 }
 
 
@@ -529,7 +705,17 @@ public class txtRPG {
 
 	public static void main(String[] args) {
 		
-		
+		 Player warriorPlayer = new Player("Sir Reginald", PlayerClass.Rogue);
+		 Weapon sword=new Weapon("Iron Sword",ItemRarity.COMMON,5,"Sword");
+		 Armor ironarmor=new Armor("Iron Armor",ItemRarity.COMMON,3,10,"Armor");
+		 warriorPlayer.debugShowBaseStats();
+		 System.out.println();
+		 warriorPlayer.equipItemWeapon(sword);
+		 System.out.println();
+		 warriorPlayer.equipItemArmor(ironarmor);
+		 warriorPlayer.debugShowCurrentStats();
+		 
+		 
 	}
 
 }
