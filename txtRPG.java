@@ -392,6 +392,7 @@ enum EnemyType {
 		private EnemyType enemyType;
 		//private List<Item> lootPool; //lootpool
 		boolean isAlive;
+		public Enemy[] orc;
 		
 		public Enemy(EnemyType enemyType) {
 			this.name = enemyType.getEnemyName();
@@ -697,9 +698,89 @@ public String toString() {
 }
 }
 
+//All locations
+class Location {
+	private String name;
+	private int ID;
+	private String description;
+	private boolean currentlocation;
+	
+	
+	public Location(String name,int ID,String description)
+	{
+		this.name = name;
+		this.ID = ID;
+		this.description = description;
+	}
+	
+	//Getters
+	public String getName() {
+		return name;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public int getID() {
+		return ID;
+	}
+	
+	//Setters
+	public void setName(String name) {
+		this.name = name;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public void setID(int iD) {
+		ID = iD;
+	}
+	
+	@Override
+	public String toString() {
+	 return "Location{" +
+	         "Name:'" + getName() + '\'' +
+	         ", Description:" + getDescription() + '}'
+	         ;
+	}
+}
 
-
-
+//Locations that has enemies
+class EnemyLocation extends Location {
+	private Enemy[] enemies;
+	
+	public EnemyLocation(String name, int ID, String description,Enemy[] enemies) {
+		super(name, ID, description);
+		this.enemies = enemies;
+	}
+	public Enemy[] getEnemies() {
+		return enemies;
+	}
+	public void setEnemies(Enemy[] enemies) {
+		this.enemies = enemies;
+	}
+	
+	
+	@Override
+	public String toString() {
+		
+		StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < enemies.length; i++) {
+            sb.append(enemies[i].getEnemyName());
+            if (i < enemies.length - 1) {
+                sb.append(", "); // Add comma and space if not the last element
+            }
+        }
+        
+	 return "Location{" +
+	         "Name:'" + getName() + '\'' +
+	         ", Description:" + getDescription() 
+	         + ", Enemies: " + sb.toString()
+	         +'}';
+	 
+	         
+	}
+	
+}
 
 public class txtRPG {
 
@@ -708,13 +789,14 @@ public class txtRPG {
 		 Player warriorPlayer = new Player("Sir Reginald", PlayerClass.Rogue);
 		 Weapon sword=new Weapon("Iron Sword",ItemRarity.COMMON,5,"Sword");
 		 Armor ironarmor=new Armor("Iron Armor",ItemRarity.COMMON,3,10,"Armor");
-		 warriorPlayer.debugShowBaseStats();
-		 System.out.println();
-		 warriorPlayer.equipItemWeapon(sword);
-		 System.out.println();
-		 warriorPlayer.equipItemArmor(ironarmor);
-		 warriorPlayer.debugShowCurrentStats();
+		 Enemy goblin = new Enemy(EnemyType.Goblin);
+		 Enemy orc = new Enemy(EnemyType.Orc);
 		 
+		 Enemy[] loc1E = new Enemy[2];
+		 
+		 loc1E[0] = goblin;
+		 loc1E[1] = orc;
+		
 		 
 	}
 
