@@ -6,7 +6,30 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
+//Text coloring
+enum TextColor {
+    RESET("\u001B[0m"),
+    BLACK("\u001B[30m"),
+    RED("\u001B[31m"),
+    GREEN("\u001B[32m"),
+    YELLOW("\u001B[33m"),
+    BLUE("\u001B[34m"),
+    PURPLE("\u001B[35m"),
+    CYAN("\u001B[36m"),
+    WHITE("\u001B[37m");
 
+    private final String code;
+
+    TextColor(String code) {
+        this.code = code;
+    }
+
+    @Override
+    public String toString() {
+        return code;
+    }
+    
+}
 //Player
 
 enum PlayerClass {
@@ -537,6 +560,7 @@ class Item {
 		this.itemrarity=itemrarity;
 		this.stackable=stackable;
 		this.equipped=false;
+		this.acquired=false;
 	}
 	
 	
@@ -849,10 +873,36 @@ public class txtRPG {
 		 Armor chaosironarmor = new Armor("Chaos Iron armor",ItemRarity.Uncommon,10,70,"Armor");
 		 Armor juggernaut = new Armor("Juggernaut",ItemRarity.Common,20,150,"Armor");
 		 
-		 
-		 while (run) {
+		 System.out.println("Welcome to this little txt based RPG");
+		 System.out.println("Please tell me your name");
+		 String playername= sc.nextLine();
+		 String classchoice ="";
+		 while (!classchoice.equalsIgnoreCase("warrior") && !classchoice.equalsIgnoreCase("rogue") && !classchoice.equalsIgnoreCase("mage")) {
+	            System.out.println("Which class would you like to play? \n Classes: Warrior, Rogue, Mage");
+	            classchoice = sc.nextLine();
+	            classchoice.toLowerCase();
+	            if (classchoice.equalsIgnoreCase("warrior")) {
+	                System.out.println("You have chosen "+TextColor.RED+"Warrior"+TextColor.RESET);
+	                
+	                Player warrior = new Player(playername, PlayerClass.Warrior);
+	                
+	            } else if (classchoice.equalsIgnoreCase("rogue")) {
+	                System.out.println("You have chosen "+TextColor.GREEN+ "Rogue"+TextColor.RESET);
+	                
+	                Player rogue = new Player(playername, PlayerClass.Rogue);
+	                
+	            } else if (classchoice.equalsIgnoreCase("mage")) {
+	                System.out.println("You have chosen "+TextColor.CYAN+ "Mage"+TextColor.RESET);
+	                
+	                Player mage = new Player(playername, PlayerClass.Mage);
+	                
+	            } else {
+	                System.out.println("Invalid class, please type in a class you want to choose \n");
+	            }
+	        }
+		/* while (run) {
 			 
-		}
+		}*/
 	}
 
 }
