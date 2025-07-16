@@ -1,5 +1,9 @@
 package training;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 
@@ -48,6 +52,7 @@ class Player {
     private int currentdmg;
     private boolean isweaponequipped;
     private boolean isarmorequipped;
+    private boolean incombat;
 
     public Player(String name, PlayerClass playerClass) {
         this.name = name;
@@ -112,6 +117,9 @@ class Player {
     public boolean checkAnyArmorEquipped() {
         return isarmorequipped;
     }
+    public boolean isIncombat() {
+		return incombat;
+	}
     
     // Setters
     public void setXp(int xp) {
@@ -143,6 +151,11 @@ class Player {
     public void setCurrentdmg(int currentdmg) {
         this.currentdmg = currentdmg;
     }
+    public void setIncombat(boolean incombat) {
+		this.incombat = incombat;
+	}
+    
+    
     
     //Change state of the Weapon slot
     public void setAnyEquippedWeapon() {
@@ -345,7 +358,9 @@ enum EnemyType {
 	//Enemy format: Name,defense,attackdamage,health,level
     Goblin("Goblin",2, 4, 20,2),
     Orc("Orc",6, 7, 50,5),
-    Skeleton("Skeleton",3, 5, 35,3),
+    SkeletonWarrior("Skeleton Warrior",3, 5, 35,3),
+    SkeletornArcher("Skeleton Archer",1,7,30,3),
+    Lich("Lich",4,10,50,6),
     Wolf("Wolf",4, 6, 40,4);
 	
 	private final String name;
@@ -500,11 +515,11 @@ enum ItemType {
     MISCELLANEOUS
 }
 enum ItemRarity {
-    COMMON,
-    UNCOMMON,
-    RARE,
-    EPIC,
-    LEGENDARY
+    Common,
+    Uncommon,
+    Rare,
+    Epic,
+    Legendary
 }
    
 class Item {
@@ -513,8 +528,9 @@ class Item {
 	private ItemRarity itemrarity;
 	private boolean stackable;
 	private boolean equipped;
+	private boolean acquired;
 	
-	
+	//name,ItemType,ItemRarity,stackable
 	public Item(String name,ItemType itemtype,ItemRarity itemrarity,boolean stackable) {
 		this.name=name;
 		this.itemtype=itemtype;
@@ -541,6 +557,9 @@ class Item {
 	public boolean isEquipped() {
 		return equipped;
 	}
+	public boolean isAcquired() {
+		return acquired;
+	}
 	
 	//setters
 	public void setName(String name) {
@@ -551,6 +570,9 @@ class Item {
 	}
 	public void unequip() {
 		this.equipped=false;
+	}
+	public void setAcquired(boolean acquired) {
+		this.acquired = acquired;
 	}
 	
 	 @Override
@@ -734,6 +756,10 @@ class Location {
 	public void setID(int iD) {
 		ID = iD;
 	}
+	public void changeLocation(Location newloc) {
+		this.currentlocation=false;
+		newloc.currentlocation=true;
+	}
 	
 	@Override
 	public String toString() {
@@ -785,19 +811,48 @@ class EnemyLocation extends Location {
 public class txtRPG {
 
 	public static void main(String[] args) {
+		boolean run =true;
 		
-		 Player warriorPlayer = new Player("Sir Reginald", PlayerClass.Rogue);
-		 Weapon sword=new Weapon("Iron Sword",ItemRarity.COMMON,5,"Sword");
-		 Armor ironarmor=new Armor("Iron Armor",ItemRarity.COMMON,3,10,"Armor");
-		 Enemy goblin = new Enemy(EnemyType.Goblin);
-		 Enemy orc = new Enemy(EnemyType.Orc);
-		 
-		 Enemy[] loc1E = new Enemy[2];
-		 
-		 loc1E[0] = goblin;
-		 loc1E[1] = orc;
+		Scanner sc=new Scanner(System.in);
 		
+		//Initialise enemies
+		 Enemy Goblin = new Enemy(EnemyType.Goblin);
+		 Enemy Orc = new Enemy(EnemyType.Orc);
+		 Enemy Skeleton = new Enemy(EnemyType.SkeletonWarrior);
+		 Enemy Wolf = new Enemy(EnemyType.Wolf);
 		 
+		 //set Locations
+		 Location MainMenu = new Location("Main Menu",0,"Main Menu");//Start here
+		 Location Map = new Location("Map",1,"This is the map");
+		 Location Shop = new Location("Shop",2,"This is the shop"); //in game shop later
+		 Enemy[] forestE = new Enemy[2]; 
+		 forestE[0]=Goblin;
+		 forestE[1]=Wolf;
+		 EnemyLocation Forest = new EnemyLocation("Forest",3,"An old forest",forestE); //Starting enemy location
+		 
+		 Enemy[] graveyardE = new Enemy[2]; 
+		 graveyardE[0]=Goblin;
+		 graveyardE[1]=Wolf;
+		 EnemyLocation Graveyard = new EnemyLocation("Graveyard",4,"Cursed Graveyard where undead walks",graveyardE); //Starting enemy location
+		 
+		 Weapon woodensword = new Weapon("Wooden Sword",ItemRarity.Common,1,"Sword");
+		 Weapon ironsword = new Weapon("Iron Sword",ItemRarity.Uncommon,3,"Sword");
+		 Weapon steelsword = new Weapon("Steel Sword",ItemRarity.Rare,5,"Sword");
+		 Weapon darksteelsword = new Weapon("Dark Steel Sword",ItemRarity.Rare,8,"Sword");
+		 Weapon chaosironsword = new Weapon("Chaos Iron Sword",ItemRarity.Epic,12,"Sword");
+		 Weapon destroyer = new Weapon("Destroyer",ItemRarity.Legendary,20,"Sword");
+		 
+		 Armor clotharmor = new Armor("Cloth armor",ItemRarity.Common,1,0,"Armor");
+		 Armor leatherharmor = new Armor("Leather armor",ItemRarity.Common,2,10,"Armor");
+		 Armor ironarmor = new Armor("Iron armor",ItemRarity.Uncommon,3,25,"Armor");
+		 Armor steelharmor = new Armor("Steel armor",ItemRarity.Common,5,40,"Armor");
+		 Armor chaosironarmor = new Armor("Chaos Iron armor",ItemRarity.Uncommon,10,70,"Armor");
+		 Armor juggernaut = new Armor("Juggernaut",ItemRarity.Common,20,150,"Armor");
+		 
+		 
+		 while (run) {
+			 
+		}
 	}
 
 }
