@@ -177,6 +177,9 @@ class Player {
     public void setIncombat(boolean incombat) {
 		this.incombat = incombat;
 	}
+    public void setPlayerClass(PlayerClass playerClass) {
+		this.playerClass = playerClass;
+	}
     
     
     
@@ -203,14 +206,40 @@ class Player {
         }
     }
     
+    // Method to check for levelup chance
+    public void possiblelevelUp() {
+    	if (this.xp==200*level) 
+    	{
+    		levelUp();
+    	}
+    }
+    
     // Method to level up
     public void levelUp() {
         this.level++;
-        // Increase stats
-        this.baseArmor += 2;
-        this.basedmg += 3;
-        this.baseHealth += 20;
+        //warrior
+        if (this.playerClass==PlayerClass.Warrior)
+        {
+        	this.baseArmor += 3;
+        	this.basedmg +=2;
+        	this.baseHealth +=20;
+        }
+        else if (this.playerClass==PlayerClass.Rogue)
+        {
+        	this.baseArmor += 2;
+        	this.basedmg +=3;
+        	this.baseHealth +=15;
+        }
+        else if (this.playerClass==PlayerClass.Mage)
+        {
+        	this.baseArmor += 1;
+        	this.basedmg +=5;
+        	this.baseHealth +=10;
+        }
+        
         this.currentHealth = baseHealth; // Refill health on level up
+        
+        
         System.out.println(name + " has reached level " + level + "!");
     }
 
@@ -237,13 +266,29 @@ class Player {
     public boolean isAlive() {
         return currentHealth > 0;
     }
+    
+    
     //Attack enemy
     public void attack(Enemy enemy) {
+    	if (this.incombat)
+    	{
     	enemy.takeDamage(currentdmg);
+	    	if (enemy.getCurrentHealth()<=0)
+	    	{
+	    		enemy.isAlive=false;
+	    		System.out.println("you have defeated a "+enemy.getEnemyName()+" You get "+(enemy.getEnemyLevel()*20 )+"XP" );
+	    		this.setXp(this.xp+=(enemy.getEnemyLevel()*20) );
+	    		this.possiblelevelUp();
+	    		
+	    	}
+    	}
+    	else {
+    		System.out.println("You are not in combat!");
+    	}
     }
     
     public void equipItemWeapon(Weapon weapon) {
-    	if (!weapon.isEquipped() && this.checkAnyWeaponEquipped()==false) {
+    	if (!weapon.isEquipped() && this.checkAnyWeaponEquipped()==false && weapon.isAcquired()==true) {
 	    	if (weapon.getType()==ItemType.WEAPON) 
 	    	{
 	    	currentdmg += weapon.getDamage();	
@@ -259,7 +304,7 @@ class Player {
     	
     }
     public void equipItemArmor(Armor armor) {
-    	if (!armor.isEquipped() && this.checkAnyArmorEquipped()==false) {
+    	if (!armor.isEquipped() && this.checkAnyArmorEquipped()==false && armor.isAcquired()) {
     		if (armor.getType()==ItemType.ARMOR) 
     		{
     		currentArmor += armor.getBonusArmor();	
@@ -276,7 +321,7 @@ class Player {
     }
     
     public void unEquipItemWeapon(Weapon weapon) {
-    	if (weapon.isEquipped()==true && this.checkAnyWeaponEquipped()==true) {
+    	if (weapon.isEquipped()==true && this.checkAnyWeaponEquipped()==true && weapon.isAcquired()==true) {
 	    	if (weapon.getType()==ItemType.WEAPON) 
 	    	{
 	    	currentdmg -= weapon.getDamage();	
@@ -298,7 +343,7 @@ class Player {
     }
     
     public void unEquipItemArmor(Armor armor) {
-    	if (armor.isEquipped()==true && this.checkAnyArmorEquipped()==true) {
+    	if (armor.isEquipped()==true && this.checkAnyArmorEquipped()==true && armor.isAcquired()) {
     		if (armor.getType()==ItemType.ARMOR) 
     		{
     		currentArmor -= armor.getBonusArmor();	
@@ -513,7 +558,10 @@ enum EnemyType {
 			player.takeDamage(attackDamage);
 		}
 		
-		
+		//Award xp when dead
+		public void awardXP(Player player) {
+			player.setXp( (player.getXp()+this.level*10) );
+		}
 		
 		
 		
@@ -560,7 +608,7 @@ class Item {
 		this.itemrarity=itemrarity;
 		this.stackable=stackable;
 		this.equipped=false;
-		this.acquired=false;
+		this.acquired=true; //default true for now until drop loot is implemented
 	}
 	
 	
@@ -838,12 +886,18 @@ public class txtRPG {
 		boolean run =true;
 		
 		Scanner sc=new Scanner(System.in);
+		String command="";
+		boolean cancommand=true;
+		String chosenclass="";
 		
+		//Initialise player
+		Player player = new Player("Tav", PlayerClass.Warrior);
 		//Initialise enemies
 		 Enemy Goblin = new Enemy(EnemyType.Goblin);
 		 Enemy Orc = new Enemy(EnemyType.Orc);
 		 Enemy Skeleton = new Enemy(EnemyType.SkeletonWarrior);
 		 Enemy Wolf = new Enemy(EnemyType.Wolf);
+		 String[] enemynames =new String[4];
 		 
 		 //set Locations
 		 Location MainMenu = new Location("Main Menu",0,"Main Menu");//Start here
@@ -859,6 +913,24 @@ public class txtRPG {
 		 graveyardE[1]=Wolf;
 		 EnemyLocation Graveyard = new EnemyLocation("Graveyard",4,"Cursed Graveyard where undead walks",graveyardE); //Starting enemy location
 		 
+		 //menu commands
+		 //attack,heal,map,equip,unequip,stats,commands,help,move
+		 String[] commands = new String[10];
+		 commands[0] ="commands";
+		 commands[1] ="help";
+		 commands[2] ="attack";
+		 commands[3] ="heal";
+		 commands[4] ="map";
+		 commands[5] ="equip";
+		 commands[6] ="unequip";
+		 commands[7] ="stats";
+		 commands[8] ="exit";
+		 commands[9] ="move";
+		 
+		 
+		 
+		 
+		 //weapons
 		 Weapon woodensword = new Weapon("Wooden Sword",ItemRarity.Common,1,"Sword");
 		 Weapon ironsword = new Weapon("Iron Sword",ItemRarity.Uncommon,3,"Sword");
 		 Weapon steelsword = new Weapon("Steel Sword",ItemRarity.Rare,5,"Sword");
@@ -866,6 +938,8 @@ public class txtRPG {
 		 Weapon chaosironsword = new Weapon("Chaos Iron Sword",ItemRarity.Epic,12,"Sword");
 		 Weapon destroyer = new Weapon("Destroyer",ItemRarity.Legendary,20,"Sword");
 		 
+		 
+		 //armor
 		 Armor clotharmor = new Armor("Cloth armor",ItemRarity.Common,1,0,"Armor");
 		 Armor leatherharmor = new Armor("Leather armor",ItemRarity.Common,2,10,"Armor");
 		 Armor ironarmor = new Armor("Iron armor",ItemRarity.Uncommon,3,25,"Armor");
@@ -874,7 +948,7 @@ public class txtRPG {
 		 Armor juggernaut = new Armor("Juggernaut",ItemRarity.Common,20,150,"Armor");
 		 
 		 System.out.println("Welcome to this little txt based RPG");
-		 System.out.println("Please tell me your name");
+		 System.out.println("Please tell me your character's name");
 		 String playername= sc.nextLine();
 		 String classchoice ="";
 		 while (!classchoice.equalsIgnoreCase("warrior") && !classchoice.equalsIgnoreCase("rogue") && !classchoice.equalsIgnoreCase("mage")) {
@@ -884,25 +958,115 @@ public class txtRPG {
 	            if (classchoice.equalsIgnoreCase("warrior")) {
 	                System.out.println("You have chosen "+TextColor.RED+"Warrior"+TextColor.RESET);
 	                
-	                Player warrior = new Player(playername, PlayerClass.Warrior);
+	                player.setPlayerClass(PlayerClass.Warrior);
 	                
-	            } else if (classchoice.equalsIgnoreCase("rogue")) {
+	                
+	                
+	            
+	            }//warrior end here
+	               else if (classchoice.equalsIgnoreCase("rogue")) {
 	                System.out.println("You have chosen "+TextColor.GREEN+ "Rogue"+TextColor.RESET);
 	                
-	                Player rogue = new Player(playername, PlayerClass.Rogue);
+	                player.setPlayerClass(PlayerClass.Rogue);
+	                
 	                
 	            } else if (classchoice.equalsIgnoreCase("mage")) {
 	                System.out.println("You have chosen "+TextColor.CYAN+ "Mage"+TextColor.RESET);
 	                
-	                Player mage = new Player(playername, PlayerClass.Mage);
+	                player.setPlayerClass(PlayerClass.Mage);
 	                
 	            } else {
-	                System.out.println("Invalid class, please type in a class you want to choose \n");
+	                System.out.println("Invalid class, please type in a class you want to choose and it is on the playable classes list \n");
 	            }
 	        }
-		/* while (run) {
-			 
-		}*/
-	}
+		 
+		 while (run) {
+   			 
+   			 
+   			 while (cancommand==true) {
+   				 System.out.println("Now what would you like to do? \nPlease enter a command or write \"help\" for the commands list");
+   		            command = sc.nextLine();
+   		            command.toLowerCase();
+   		            
+	   		            if (command.equals("help") )
+	   		            {
+	   		            	System.out.println("You can use these commands: \n help, commands, attack, move, heal, map, equip, unequip, stats, exit");
+	   		            	
+	   		            }
+	   		            else if (command.equals("commands") )
+			            {
+			            	System.out.println("You can use these commands: \n help, commands, attack, move, heal, map, equip, unequip, stats, exit");
+			            	
+			            }
+	   		            else if (command.equals("attack") )
+			            {
+	   		            	System.out.println("who do you want to attack?");
+	   		            	command=sc.nextLine();
+	   		            	
+			            }
+	   		            else if (command.equals("move") )
+			            {
+			            	if (!player.isIncombat())
+			            	{
+			            		System.out.println("Where do you want to go?");
+			            	}
+			            	else if (player.isIncombat())
+			            	{
+			            		System.out.println("you are in combat, you cannot go away \n fight like a soldier!");
+			            	}
+			            }
+	   		            else if (command.equals("heal") )
+			            {
+				            	
+			            }
+	   		            else if (command.equals("map") )
+	   		            {
+				            	
+	   		            }
+				   		else if (command.equals("equip") )
+				        {
+				           	
+				        }
+				   		else if (command.equals("unequip") )
+				        {
+				           	
+				        }
+				   		else if (command.equals("stats") )
+				        {
+				           	
+				        }
+   		            
+   		            
+   		            
 
-}
+   		            else if (command.equalsIgnoreCase("exit")) {
+   		            	System.out.println("Exiting game, Goodbye");
+   		            	cancommand=false;
+   		                run=false; //stop game
+   		            }
+
+   		            
+   		        }
+            
+            
+        } //Run ends here
+			 
+			
+		
+		 
+	
+	
+	
+	}//main ends here
+	
+	public void changePlayerLocation(Location currentlocation,Location newlocation) {
+		currentlocation.changeLocation(newlocation);
+	}
+	
+	
+	
+	
+	
+	
+
+}//txtrpg ends here
