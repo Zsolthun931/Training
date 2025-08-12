@@ -563,7 +563,11 @@ enum EnemyType {
 			player.setXp( (player.getXp()+this.level*10) );
 		}
 		
-		
+		//Reset to be able to fight multiple times
+		public void enemyReset() {
+			this.currentHealth=this.baseHealth;
+			this.isAlive=true;
+		}
 		
 	}
 	
