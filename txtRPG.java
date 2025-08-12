@@ -821,6 +821,9 @@ class Location {
 	public int getID() {
 		return ID;
 	}
+	public boolean isCurrentlocation() {
+		return currentlocation;
+	}
 	
 	//Setters
 	public void setName(String name) {
@@ -904,6 +907,8 @@ public class txtRPG {
 		 String[] enemynames =new String[4];
 		 
 		 //set Locations
+		 Location[] allLocations =new Location[3];
+		 EnemyLocation[] allEnemyLocations = new EnemyLocation[3];
 		 Location MainMenu = new Location("Main Menu",0,"Main Menu");//Start here
 		 Location Map = new Location("Map",1,"This is the map");
 		 Location Shop = new Location("Shop",2,"This is the shop"); //in game shop later
@@ -915,7 +920,19 @@ public class txtRPG {
 		 Enemy[] graveyardE = new Enemy[2]; 
 		 graveyardE[0]=Goblin;
 		 graveyardE[1]=Wolf;
-		 EnemyLocation Graveyard = new EnemyLocation("Graveyard",4,"Cursed Graveyard where undead walks",graveyardE); //Starting enemy location
+		 EnemyLocation Graveyard = new EnemyLocation("Graveyard",4,"Cursed Graveyard where undead walks",graveyardE);
+		 
+		 Enemy[] cavernE = new Enemy[2];
+		 cavernE[0]=Goblin;
+		 cavernE[1]=Wolf;
+		 EnemyLocation Cavern = new EnemyLocation("Cavern",5,"A dark Cavern, you hear the sounds of different beasts",cavernE);
+		 
+		 allLocations[0]= MainMenu;
+		 allLocations[1]= Map;
+		 allLocations[2]= Shop;
+		 allEnemyLocations[0]=Forest;
+		 allEnemyLocations[1]=Graveyard;
+		 allEnemyLocations[2]=Cavern;
 		 
 		 //menu commands
 		 //attack,heal,map,equip,unequip,stats,commands,help,move
@@ -1013,6 +1030,21 @@ public class txtRPG {
 			            	if (!player.isIncombat())
 			            	{
 			            		System.out.println("Where do you want to go?");
+			            		command=(sc.nextLine() ).toLowerCase();
+			            		checkCorrectLocation(command,allLocations,allEnemyLocations);
+			            		for (int x=0;x<(allLocations.length);x++)
+			            		{
+			            			
+			            				if (allLocations[x].isCurrentlocation())
+			            				{
+			            					allLocations[x].getName();
+			            				}
+			            				else if(allEnemyLocations[x].isCurrentlocation())
+			            				{
+			            					//return allEnemyLocations[x].getName();
+			            				}
+			            			
+			            		}
 			            	}
 			            	else if (player.isIncombat())
 			            	{
@@ -1066,8 +1098,53 @@ public class txtRPG {
 	public void changePlayerLocation(Location currentlocation,Location newlocation) {
 		currentlocation.changeLocation(newlocation);
 	}
-	
-	
+	public String currentPlayerLocation(Location[] locations,EnemyLocation[] enemylocations) {
+		for(int x=0;x<(locations.length);x++)
+		{
+			if (locations[x].isCurrentlocation())
+			{
+				return locations[x].getName();
+			}
+			else if(enemylocations[x].isCurrentlocation())
+			{
+				return enemylocations[x].getName();
+			}
+			
+			
+		}
+		return null;
+		
+	}
+ 	public static void checkCorrectLocation(String chosenlocation,Location[] locations,EnemyLocation[] enemylocations) {
+ 		boolean correctlocation=false;
+ 		
+ 		Scanner lc=new Scanner(System.in);
+ 		while (!correctlocation)
+ 		{
+	 		for(int x=0;x<(locations.length);x++)
+			{
+	 			System.out.println("chosenlocation: \'"+chosenlocation +"\'  checkinglocation: \'"+(locations[x].getName().toLowerCase() )+"\'" );
+	 			System.out.println("chosenlocation: \'"+chosenlocation +"\'  checkingenemylocation: \'"+(enemylocations[x].getName().toLowerCase() )+"\'" );
+	 			if ( (locations[x].getName().toLowerCase() ).equalsIgnoreCase(chosenlocation))
+	 			{
+	 				correctlocation=true;
+	 			}
+	 			
+	 			else if ( (enemylocations[x].getName().toLowerCase() ).equalsIgnoreCase(chosenlocation))
+	 			{
+	 				correctlocation=true;
+	 			}
+			}
+	 		if (correctlocation==false)
+	 		{
+	 			System.out.println("Incorrect location!");
+	 			chosenlocation=lc.nextLine();
+	 		}
+	 		else {
+	 			System.out.println("You moved to the "+chosenlocation);
+	 		}
+ 		}
+ 	}
 	
 	
 	
