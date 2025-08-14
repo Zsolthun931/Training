@@ -475,7 +475,8 @@ enum EnemyType {
 		private EnemyType enemyType;
 		//private List<Item> lootPool; //lootpool
 		boolean isAlive;
-		public Enemy[] orc;
+		boolean inCombat;
+		
 		
 		public Enemy(EnemyType enemyType) {
 			this.name = enemyType.getEnemyName();
@@ -509,6 +510,10 @@ enum EnemyType {
 		public EnemyType getEnemyType() {
 			return enemyType;
 		}
+		public boolean isInCombat() {
+			return inCombat;
+		}
+		
 		//TODO: lootpool getter
 		
 		//Setters
@@ -532,6 +537,9 @@ enum EnemyType {
 		}
 		public void setEnemyType(EnemyType enemyType) {
 			this.enemyType = enemyType;
+		}
+		public void setInCombat(boolean inCombat) {
+			this.inCombat = inCombat;
 		}
 		//TODO: lootpool setter
 		
@@ -905,11 +913,18 @@ public class txtRPG {
 		 Enemy Skeleton = new Enemy(EnemyType.SkeletonWarrior);
 		 Enemy Wolf = new Enemy(EnemyType.Wolf);
 		 String[] enemynames =new String[4];
+		 Enemy[] allEnemies= new Enemy[4];
+		 allEnemies[0]=Goblin;
+		 allEnemies[1]=Orc;
+		 allEnemies[2]=Skeleton;
+		 allEnemies[3]=Wolf;
 		 
 		 //set Locations
 		 Location[] allLocations =new Location[3];
 		 EnemyLocation[] allEnemyLocations = new EnemyLocation[3];
+		 Location nextlocation;
 		 Location MainMenu = new Location("Main Menu",0,"Main Menu");//Start here
+		 MainMenu.changeLocation(MainMenu);
 		 Location Map = new Location("Map",1,"This is the map");
 		 Location Shop = new Location("Shop",2,"This is the shop"); //in game shop later
 		 Enemy[] forestE = new Enemy[2]; 
@@ -922,6 +937,8 @@ public class txtRPG {
 		 graveyardE[1]=Wolf;
 		 EnemyLocation Graveyard = new EnemyLocation("Graveyard",4,"Cursed Graveyard where undead walks",graveyardE);
 		 
+		 
+		 //filler Location for now
 		 Enemy[] cavernE = new Enemy[2];
 		 cavernE[0]=Goblin;
 		 cavernE[1]=Wolf;
@@ -1003,7 +1020,7 @@ public class txtRPG {
 		 
 		 while (run) {
    			 
-   			 
+   			 //commands list
    			 while (cancommand==true) {
    				 System.out.println("Now what would you like to do? \nPlease enter a command or write \"help\" for the commands list");
    		            command = sc.nextLine();
@@ -1023,28 +1040,25 @@ public class txtRPG {
 			            {
 	   		            	System.out.println("who do you want to attack?");
 	   		            	command=sc.nextLine();
+	   		            	checkCorrectEnemy(allEnemies, command);
+	   		            	if (checkCurrentEnemy(allEnemies)==null)
+	   		            	{
+	   		            		player.setIncombat(true);
+	   		            		getChosenEnemy(allEnemies, command).setInCombat(true);
+	   		            		player.attack(getChosenEnemy(allEnemies,command));
+	   		            	}
 	   		            	
 			            }
 	   		            else if (command.equals("move") )
 			            {
 			            	if (!player.isIncombat())
 			            	{
-			            		System.out.println("Where do you want to go?");
+			            		System.out.println("Your current location is: "+(currentPlayerLocation(allLocations,allEnemyLocations).getName()));
+			            		System.out.println("Where do you want to go? \n MainMenu, Shop, Map, Forest, Cavern, Graveyard");
 			            		command=(sc.nextLine() ).toLowerCase();
 			            		checkCorrectLocation(command,allLocations,allEnemyLocations);
-			            		for (int x=0;x<(allLocations.length);x++)
-			            		{
-			            			
-			            				if (allLocations[x].isCurrentlocation())
-			            				{
-			            					allLocations[x].getName();
-			            				}
-			            				else if(allEnemyLocations[x].isCurrentlocation())
-			            				{
-			            					//return allEnemyLocations[x].getName();
-			            				}
-			            			
-			            		}
+			            		changePlayerLocation( (currentPlayerLocation(allLocations,allEnemyLocations)), newPlayerLocation(allLocations,allEnemyLocations,command)  );
+			            		//debug System.out.println("new location is: "+(currentPlayerLocation(allLocations,allEnemyLocations).getName()) );
 			            	}
 			            	else if (player.isIncombat())
 			            	{
@@ -1082,7 +1096,7 @@ public class txtRPG {
    		            }
 
    		            
-   		        }
+   		        } //can command ends here
             
             
         } //Run ends here
@@ -1095,19 +1109,86 @@ public class txtRPG {
 	
 	}//main ends here
 	
-	public void changePlayerLocation(Location currentlocation,Location newlocation) {
+	public static Enemy checkCurrentEnemy(Enemy[] enemies)
+	{
+		for(int x=0;x<enemies.length;x++)
+		{
+			if (enemies[x].isInCombat())
+			{
+				return enemies[x];
+			}
+			
+		}
+		
+		return null;
+	}
+	public static Enemy getChosenEnemy(Enemy[] enemies,String chosenenemy)
+	{
+		for (int x=0;x<enemies.length;x++)
+		{
+			if (enemies[x].getEnemyName().equalsIgnoreCase(chosenenemy))
+			{
+				return enemies[x];
+				
+			}
+		}
+		
+		return null;
+	}
+	public static void checkCorrectEnemy(Enemy[] enemies,String chosenenemy) 
+	{
+		boolean correctenemy=false;
+		Scanner lc=new Scanner(System.in);
+		while(!correctenemy)
+		{
+			for (int x=0;x<enemies.length;x++)
+			{
+				if (enemies[x].getEnemyName().equalsIgnoreCase(chosenenemy))
+				{
+					
+					correctenemy=true;
+				}
+			}
+			if (!correctenemy)
+			{
+				System.out.println("Incorrect enemy, please make sure you wrote the correct enemy");
+				chosenenemy=lc.nextLine();
+			}
+		}
+		lc.close();
+	}
+	
+	public static void changePlayerLocation(Location currentlocation,Location newlocation) {
 		currentlocation.changeLocation(newlocation);
 	}
-	public String currentPlayerLocation(Location[] locations,EnemyLocation[] enemylocations) {
+	public static Location currentPlayerLocation(Location[] locations,EnemyLocation[] enemylocations) {
 		for(int x=0;x<(locations.length);x++)
 		{
 			if (locations[x].isCurrentlocation())
 			{
-				return locations[x].getName();
+				return locations[x];
 			}
 			else if(enemylocations[x].isCurrentlocation())
 			{
-				return enemylocations[x].getName();
+				return enemylocations[x];
+			}
+			
+			
+		}
+		return null;
+		
+	}
+	
+	public static  Location newPlayerLocation(Location[] locations,EnemyLocation[] enemylocations,String newlocation) {
+		for(int x=0;x<(locations.length);x++)
+		{
+			if (locations[x].getName().toLowerCase().equalsIgnoreCase(newlocation))
+			{
+				return locations[x];
+			}
+			else if(enemylocations[x].getName().toLowerCase().equalsIgnoreCase(newlocation))
+			{
+				return enemylocations[x];
 			}
 			
 			
@@ -1123,16 +1204,20 @@ public class txtRPG {
  		{
 	 		for(int x=0;x<(locations.length);x++)
 			{
-	 			System.out.println("chosenlocation: \'"+chosenlocation +"\'  checkinglocation: \'"+(locations[x].getName().toLowerCase() )+"\'" );
-	 			System.out.println("chosenlocation: \'"+chosenlocation +"\'  checkingenemylocation: \'"+(enemylocations[x].getName().toLowerCase() )+"\'" );
+	 			
+	 			//debug text
+	 			/*System.out.println("chosenlocation: \'"+chosenlocation +"\'  checkinglocation: \'"+(locations[x].getName().toLowerCase() )+"\'" );
+	 			System.out.println("chosenlocation: \'"+chosenlocation +"\'  checkingenemylocation: \'"+(enemylocations[x].getName().toLowerCase() )+"\'" );*/
 	 			if ( (locations[x].getName().toLowerCase() ).equalsIgnoreCase(chosenlocation))
 	 			{
 	 				correctlocation=true;
+	 				
 	 			}
 	 			
 	 			else if ( (enemylocations[x].getName().toLowerCase() ).equalsIgnoreCase(chosenlocation))
 	 			{
 	 				correctlocation=true;
+	 				
 	 			}
 			}
 	 		if (correctlocation==false)
@@ -1144,6 +1229,7 @@ public class txtRPG {
 	 			System.out.println("You moved to the "+chosenlocation);
 	 		}
  		}
+ 		lc.close();
  	}
 	
 	
