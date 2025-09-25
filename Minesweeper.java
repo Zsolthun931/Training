@@ -84,8 +84,9 @@ public class Minesweeper {
 		System.out.println("How many mines do you want?");
 		mines=sc.nextInt();
 		
-		//maximum for revealed cells
+		//maximum possibilities for revealed cells
 		int maxreveal=(rows*cols)-mines; 
+  //maximum number of cells
 		int maxcells=rows*cols;
 		
 		if (mines<0 || mines>maxcells-1)
